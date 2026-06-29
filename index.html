@@ -11,7 +11,6 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
 <link rel="manifest" href="manifest.json">
 <title>Mon carnet</title>
-</head>
 <style>
   :root {
     --rose-clair: #F4C0D1;
@@ -49,7 +48,6 @@
   }
   h1 { font-size: 18px; margin: 0; font-weight: 600; }
   .sub { font-size: 13px; color: var(--gris); margin: 0; }
-
   .hint {
     background: var(--carte);
     border-radius: 14px;
@@ -59,7 +57,7 @@
     line-height: 1.5;
     margin-bottom: 16px;
   }
-
+  
   .nav {
     display: flex;
     align-items: center;
@@ -75,7 +73,6 @@
   }
   .nav button:active { transform: scale(0.92); }
   .month-label { font-size: 16px; font-weight: 600; text-transform: capitalize; }
-
   .weekdays, .calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -104,7 +101,6 @@
   .day.f1 { background: var(--rose-clair); color: var(--texte-fonce); font-weight: 600; }
   .day.f2 { background: var(--rose-moyen); color: var(--texte-fonce); font-weight: 600; }
   .day.f3 { background: var(--rose-fonce); color: #fff; font-weight: 600; }
-
   .legend {
     display: flex; gap: 16px; flex-wrap: wrap;
     margin-bottom: 18px;
@@ -112,7 +108,6 @@
   }
   .legend span { display: flex; align-items: center; gap: 6px; }
   .dot { width: 13px; height: 13px; border-radius: 50%; display: inline-block; }
-
   .recap {
     background: var(--carte);
     border-radius: 14px;
@@ -122,7 +117,6 @@
   }
   .recap h2 { font-size: 14px; margin: 0 0 8px; color: var(--gris); font-weight: 600; }
   .recap .big { font-size: 15px; color: #222; }
-
   .actions {
     display: flex; justify-content: center;
     margin-top: 24px;
@@ -136,8 +130,6 @@
     font-family: inherit; cursor: pointer;
   }
   .action-btn:active { opacity: 0.6; }
-
-  /* Modal */
   .overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.4);
@@ -239,17 +231,57 @@
   </div>
 
 <script>
-  var KEY = 'monCarnetRegles';
-  var data = {};
-  try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { data = {}; }
-  function persist(){ try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){} }
+  var BIN_ID = '6a426012da38895dfe0fb4c2';
+  var API_KEY = '$2a$10$IyFbu4LeNw9VMXw8spHQ2eyLO5HKuTmFda/5R7VxRnEeElEz/rFtO';
+  var API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
 
+  var data = {};
   var today = new Date();
   var view = new Date(today.getFullYear(), today.getMonth(), 1);
   var selectedKey = null;
   var months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
+  function setSyncStatus(){}
+
   function keyOf(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+
+  function loadFromCloud(){
+    setSyncStatus('loading', 'Chargement…');
+    fetch(API_URL + '/latest', {
+      headers: { 'X-Master-Key': API_KEY }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(json){
+      data = (json.record && json.record.data) ? json.record.data : {};
+      setSyncStatus('ok', 'Synchronisé');
+      render();
+    })
+    .catch(function(){
+      setSyncStatus('err', 'Erreur de connexion');
+      try { data = JSON.parse(localStorage.getItem('monCarnetRegles')) || {}; } catch(e){ data = {}; }
+      render();
+    });
+  }
+
+  function saveToCloud(){
+    setSyncStatus('loading', 'Sauvegarde…');
+    fetch(API_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': API_KEY
+      },
+      body: JSON.stringify({ data: data })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(){
+      setSyncStatus('ok', 'Synchronisé');
+      try { localStorage.setItem('monCarnetRegles', JSON.stringify(data)); } catch(e){}
+    })
+    .catch(function(){
+      setSyncStatus('err', 'Erreur de sauvegarde');
+    });
+  }
 
   function changeMonth(delta){
     view.setMonth(view.getMonth()+delta);
@@ -266,8 +298,8 @@
     document.getElementById('overlay').classList.add('show');
   }
   function closeSheet(){ document.getElementById('overlay').classList.remove('show'); selectedKey=null; }
-  function setFlow(f){ if(selectedKey){ data[selectedKey]=f; persist(); render(); } closeSheet(); }
-  function removeDay(){ if(selectedKey){ delete data[selectedKey]; persist(); render(); } closeSheet(); }
+  function setFlow(f){ if(selectedKey){ data[selectedKey]=f; saveToCloud(); render(); } closeSheet(); }
+  function removeDay(){ if(selectedKey){ delete data[selectedKey]; saveToCloud(); render(); } closeSheet(); }
 
   document.getElementById('overlay').addEventListener('click', function(e){
     if(e.target === this) closeSheet();
@@ -282,7 +314,6 @@
     var startDay = (first.getDay()+6)%7;
     var daysInMonth = new Date(y, m+1, 0).getDate();
     var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
-
     for(var i=0;i<startDay;i++){
       var e = document.createElement('div'); e.className='day empty'; cal.appendChild(e);
     }
@@ -302,8 +333,6 @@
     else { r.textContent = count + (count>1?' jours':' jour') + ' de règles notés ce mois-ci.'; }
   }
 
-  render();
-
   function exportData(){
     var now = new Date();
     var stamp = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
@@ -319,7 +348,7 @@
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   }
 
-
+  loadFromCloud();
 </script>
 </body>
 </html>
