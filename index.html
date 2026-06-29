@@ -109,14 +109,15 @@
   .legend span { display: flex; align-items: center; gap: 6px; }
   .dot { width: 13px; height: 13px; border-radius: 50%; display: inline-block; }
   .recap {
-    background: var(--carte);
+    border: 2px solid var(--rose-moyen);
     border-radius: 14px;
     padding: 16px;
     font-size: 14px;
     line-height: 1.6;
+    background: transparent;
   }
-  .recap h2 { font-size: 14px; margin: 0 0 8px; color: var(--gris); font-weight: 600; }
-  .recap .big { font-size: 15px; color: #222; }
+  .recap h2 { font-size: 14px; margin: 0 0 4px; color: var(--gris); font-weight: 700; }
+  .recap .big { font-size: 15px; color: #222; margin: 0; }
   .actions {
     display: flex; justify-content: center;
     margin-top: 24px;
@@ -216,10 +217,10 @@
   </div>
 
   <div class="recap">
-    <h2>Ce mois-ci</h2>
+    <h2 id="recapTitle">Récap de ce mois</h2>
     <p class="big" id="recapText"></p>
   </div>
-
+  
   <div class="actions">
     <button class="action-btn" onclick="exportData()">Export</button>
   </div>
@@ -316,7 +317,7 @@
   function render(){
     var y = view.getFullYear(), m = view.getMonth();
     document.getElementById('monthLabel').textContent = months[m] + ' ' + y;
-    var cal = document.getElementById('calendar');
+      document.getElementById('recapTitle').textContent = 'Récap de ' + months[m] + ' ' + y + ' :';    var cal = document.getElementById('calendar');
     cal.innerHTML = '';
     var first = new Date(y, m, 1);
     var startDay = (first.getDay()+6)%7;
@@ -337,8 +338,8 @@
       cal.appendChild(btn);
     }
     var r = document.getElementById('recapText');
-    if(count===0){ r.textContent = "Aucun jour noté pour l'instant ce mois-ci."; }
-    else { r.textContent = count + (count>1?' jours':' jour') + ' de règles notés ce mois-ci.'; }
+    if(count===0){ r.textContent = "Aucun jour noté pour l'instant."; }
+    else { r.textContent = '🌸 ' + count + (count>1?' jours':' jour') + ' de règles'; }
   }
 
   function exportData(){
