@@ -248,7 +248,7 @@
   function loadFromCloud(){
     setSyncStatus('loading', 'Chargement…');
     fetch(API_URL + '/latest', {
-      headers: { 'X-Master-Key': API_KEY }
+      headers: { 'X-Access-Key': API_KEY }
     })
     .then(function(r){ return r.json(); })
     .then(function(json){
