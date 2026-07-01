@@ -24,13 +24,12 @@ function keyOf(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).pa
 
 function loadFromCloud(){
   setSyncStatus('loading', 'Synchro…');
-  fetch(API_URL + '/latest', {
-    headers: { 'X-Access-Key': API_KEY }
-  })
+  fetch(WORKER_URL)
   .then(function(r){ return r.json(); })
   .then(function(json){
-    data = (json.record && json.record.data) ? json.record.data : {};
+    data = json.data || {};
     setSyncStatus('ok', 'Synchro');
+    try { localStorage.setItem('monCarnetRegles', JSON.stringify(data)); } catch(e){}
     render();
   })
   .catch(function(){
@@ -42,17 +41,14 @@ function loadFromCloud(){
 
 function saveToCloud(){
   setSyncStatus('loading', 'Synchro…');
-  fetch(API_URL, {
+  fetch(WORKER_URL, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Access-Key': API_KEY
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: data })
   })
   .then(function(r){ return r.json(); })
   .then(function(){
-    setSyncStatus('ok', 'Synchronisé');
+    setSyncStatus('ok', 'Synchro');
     try { localStorage.setItem('monCarnetRegles', JSON.stringify(data)); } catch(e){}
   })
   .catch(function(){
