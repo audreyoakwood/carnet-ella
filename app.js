@@ -1,0 +1,115 @@
+var data = {};
+var today = new Date();
+var view = new Date(today.getFullYear(), today.getMonth(), 1);
+var selectedKey = null;
+var months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+function setSyncStatus(){}
+
+function keyOf(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+
+function loadFromCloud(){
+  setSyncStatus('loading', 'Chargement…');
+  fetch(API_URL + '/latest', {
+    headers: { 'X-Access-Key': API_KEY }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(json){
+    data = (json.record && json.record.data) ? json.record.data : {};
+    setSyncStatus('ok', 'Synchronisé');
+    render();
+  })
+  .catch(function(){
+    setSyncStatus('err', 'Erreur de connexion');
+    try { data = JSON.parse(localStorage.getItem('monCarnetRegles')) || {}; } catch(e){ data = {}; }
+    render();
+  });
+}
+
+function saveToCloud(){
+  setSyncStatus('loading', 'Sauvegarde…');
+  fetch(API_URL, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Access-Key': API_KEY
+    },
+    body: JSON.stringify({ data: data })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(){
+    setSyncStatus('ok', 'Synchronisé');
+    try { localStorage.setItem('monCarnetRegles', JSON.stringify(data)); } catch(e){}
+  })
+  .catch(function(){
+    setSyncStatus('err', 'Erreur de sauvegarde');
+  });
+}
+
+function changeMonth(delta){
+  view.setMonth(view.getMonth()+delta);
+  render();
+}
+
+function openSheet(key){
+  selectedKey = key;
+  var p = key.split('-');
+  var dt = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  document.getElementById('sheetDate').textContent =
+    dt.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('removeBtn').style.display = data[key] ? 'block' : 'none';
+  document.getElementById('overlay').classList.add('show');
+}
+function closeSheet(){ document.getElementById('overlay').classList.remove('show'); selectedKey=null; }
+function setFlow(f){ if(selectedKey){ data[selectedKey]=f; saveToCloud(); render(); } closeSheet(); }
+function removeDay(){ if(selectedKey){ delete data[selectedKey]; saveToCloud(); render(); } closeSheet(); }
+
+document.getElementById('overlay').addEventListener('click', function(e){
+  if(e.target === this) closeSheet();
+});
+
+function render(){
+  var y = view.getFullYear(), m = view.getMonth();
+  document.getElementById('monthLabel').textContent = months[m] + ' ' + y;
+  document.getElementById('recapTitle').textContent = 'Récap de ' + months[m] + ' ' + y + ' :';
+  var cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+  var first = new Date(y, m, 1);
+  var startDay = (first.getDay()+6)%7;
+  var daysInMonth = new Date(y, m+1, 0).getDate();
+  var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
+  for(var i=0;i<startDay;i++){
+    var e = document.createElement('div'); e.className='day empty'; cal.appendChild(e);
+  }
+  var count = 0;
+  for(var d=1; d<=daysInMonth; d++){
+    var key = keyOf(y,m,d);
+    var btn = document.createElement('button');
+    btn.className = 'day';
+    btn.textContent = d;
+    if(data[key]){ btn.className += ' f'+data[key]; count++; }
+    if(key === todayKey){ btn.className += ' today'; }
+    (function(k){ btn.onclick = function(){ openSheet(k); }; })(key);
+    cal.appendChild(btn);
+  }
+  var r = document.getElementById('recapText');
+  if(count===0){ r.textContent = "Aucun jour noté pour l'instant."; }
+  else { r.textContent = '🌸 ' + count + (count>1?' jours':' jour') + ' de règles'; }
+}
+
+function exportData(){
+  var now = new Date();
+  var stamp = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  var payload = JSON.stringify({ app: 'monCarnetRegles', exportedAt: now.toISOString(), data: data }, null, 2);
+  var blob = new Blob([payload], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'mon-carnet-' + stamp + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+loadFromCloud();
