@@ -4,7 +4,12 @@ var view = new Date(today.getFullYear(), today.getMonth(), 1);
 var selectedKey = null;
 var months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
-function setSyncStatus(){}
+function setSyncStatus(state, text){
+  var el = document.getElementById('syncStatus');
+  if(!el) return;
+  el.className = 'sync-status' + (state ? ' ' + state : '');
+  el.textContent = text || '';
+}
 
 function keyOf(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
 
@@ -20,7 +25,7 @@ function loadFromCloud(){
     render();
   })
   .catch(function(){
-    setSyncStatus('err', 'Erreur de connexion');
+    setSyncStatus('err', "Hors ligne — enregistré sur l'appareil");
     try { data = JSON.parse(localStorage.getItem('monCarnetRegles')) || {}; } catch(e){ data = {}; }
     render();
   });
