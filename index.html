@@ -10,171 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="Mon carnet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
 <title>Mon carnet</title>
-<style>
-  :root {
-    --rose-clair: #F4C0D1;
-    --rose-moyen: #ED93B1;
-    --rose-fonce: #993556;
-    --texte-fonce: #4B1528;
-    --bg: #FBEAF0;
-    --carte: #ffffff;
-    --gris: #6b6b6b;
-    --gris-clair: #d8d8d8;
-    --accent: #D4537E;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: #222;
-    padding: 16px;
-    max-width: 480px;
-    margin: 0 auto;
-    -webkit-font-smoothing: antialiased;
-  }
-  header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .logo {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-  }
-  h1 { font-size: 18px; margin: 0; font-weight: 600; }
-  .sub { font-size: 13px; color: var(--gris); margin: 0; }
-  .hint {
-    background: var(--carte);
-    border-radius: 14px;
-    padding: 14px 16px;
-    font-size: 14px;
-    color: #444;
-    line-height: 1.5;
-    margin-bottom: 16px;
-  }
-  
-  .nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .nav button {
-    width: 40px; height: 40px;
-    border: none; border-radius: 50%;
-    background: var(--carte);
-    font-size: 20px; color: var(--accent);
-    cursor: pointer;
-  }
-  .nav button:active { transform: scale(0.92); }
-  .month-label { font-size: 16px; font-weight: 600; text-transform: capitalize; }
-  .weekdays, .calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-  }
-  .weekdays div {
-    text-align: center; font-size: 12px; color: var(--gris);
-    padding-bottom: 4px;
-  }
-  .calendar { margin-bottom: 16px; }
-  .day {
-    aspect-ratio: 1;
-    border: none;
-    border-radius: 12px;
-    background: var(--carte);
-    font-size: 15px;
-    color: #333;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-family: inherit;
-    transition: transform 0.08s;
-  }
-  .day:active { transform: scale(0.9); }
-  .day.empty { background: transparent; cursor: default; }
-  .day.today { box-shadow: inset 0 0 0 2px var(--accent); }
-  .day.f1 { background: var(--rose-clair); color: var(--texte-fonce); font-weight: 600; }
-  .day.f2 { background: var(--rose-moyen); color: var(--texte-fonce); font-weight: 600; }
-  .day.f3 { background: var(--rose-fonce); color: #fff; font-weight: 600; }
-  .legend {
-    display: flex; gap: 16px; flex-wrap: wrap;
-    margin-bottom: 18px;
-    font-size: 13px; color: var(--gris);
-  }
-  .legend span { display: flex; align-items: center; gap: 6px; }
-  .dot { width: 13px; height: 13px; border-radius: 50%; display: inline-block; }
-  .recap {
-    border: 2px solid var(--rose-moyen);
-    border-radius: 14px;
-    padding: 16px;
-    font-size: 14px;
-    line-height: 1.6;
-    background: transparent;
-  }
-  .recap h2 { font-size: 14px; margin: 0 0 4px; color: var(--gris); font-weight: 700; }
-  .recap .big { font-size: 15px; color: #222; margin: 0; }
-  .actions {
-    display: flex; justify-content: center;
-    margin-top: 24px;
-  }
-  .action-btn {
-    padding: 8px 16px;
-    border: none; border-radius: 10px;
-    background: none;
-    color: var(--gris);
-    font-size: 13px; font-weight: 500;
-    font-family: inherit; cursor: pointer;
-  }
-  .action-btn:active { opacity: 0.6; }
-  .overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: none;
-    align-items: flex-end;
-    z-index: 10;
-  }
-  .overlay.show { display: flex; }
-  .sheet {
-    background: #fff;
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-    border-radius: 20px 20px 0 0;
-    padding: 20px 18px calc(20px + env(safe-area-inset-bottom));
-  }
-  .sheet h3 { margin: 0 0 4px; font-size: 17px; }
-  .sheet .date-label { font-size: 13px; color: var(--gris); margin: 0 0 16px; text-transform: capitalize; }
-  .flow-options { display: flex; flex-direction: column; gap: 10px; }
-  .flow-opt {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 16px;
-    border: none; border-radius: 14px;
-    font-size: 16px; font-family: inherit;
-    cursor: pointer; text-align: left;
-    color: var(--texte-fonce);
-  }
-  .flow-opt:active { transform: scale(0.98); }
-  .flow-opt.o1 { background: var(--rose-clair); }
-  .flow-opt.o2 { background: var(--rose-moyen); }
-  .flow-opt.o3 { background: var(--rose-fonce); color: #fff; }
-  .flow-opt .dot { width: 18px; height: 18px; }
-  .remove-btn {
-    width: 100%; margin-top: 14px;
-    padding: 14px; border: none; border-radius: 14px;
-    background: #f0f0f0; color: #555; font-size: 15px;
-    font-family: inherit; cursor: pointer;
-  }
-  .cancel-btn {
-    width: 100%; margin-top: 8px;
-    padding: 12px; border: none; background: none;
-    color: var(--gris); font-size: 15px; font-family: inherit; cursor: pointer;
-  }
-</style>
 </head>
 <body>
   <header>
@@ -184,7 +21,6 @@
       <p class="sub">Mon petit suivi perso</p>
     </div>
   </header>
-
 
   <div class="hint">
     <strong style="font-size:15px; color:#222;">Salut Ella 🧚 !</strong><br>
@@ -196,8 +32,6 @@
   </div>
 
   <p style="font-size:13px; color:#888; margin: 0 0 12px;">Touche un jour où tu as tes règles puis renseigne ton flux. C'est tout. Pas besoin de noter quand il n'y a rien.</p>
-
-  
 
   <div class="nav">
     <button onclick="changeMonth(-1)" aria-label="Mois précédent">‹</button>
@@ -220,7 +54,7 @@
     <h2 id="recapTitle">Récap de ce mois</h2>
     <p class="big" id="recapText"></p>
   </div>
-  
+
   <div class="actions">
     <button class="action-btn" onclick="exportData()">Export</button>
   </div>
@@ -239,125 +73,7 @@
     </div>
   </div>
 
-<script>
-  var BIN_ID = '6a426012da38895dfe0fb4c2';
-  var API_KEY = '$2a$10$6ZpKLsuncbbjUaxy3KTK8O0bZcf70CUera3lG812Y7mSUoAybRFJy';
-  var API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
-
-  var data = {};
-  var today = new Date();
-  var view = new Date(today.getFullYear(), today.getMonth(), 1);
-  var selectedKey = null;
-  var months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-
-  function setSyncStatus(){}
-
-  function keyOf(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
-
-  function loadFromCloud(){
-    setSyncStatus('loading', 'Chargement…');
-    fetch(API_URL + '/latest', {
-      headers: { 'X-Access-Key': API_KEY }
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(json){
-      data = (json.record && json.record.data) ? json.record.data : {};
-      setSyncStatus('ok', 'Synchronisé');
-      render();
-    })
-    .catch(function(){
-      setSyncStatus('err', 'Erreur de connexion');
-      try { data = JSON.parse(localStorage.getItem('monCarnetRegles')) || {}; } catch(e){ data = {}; }
-      render();
-    });
-  }
-
-  function saveToCloud(){
-    setSyncStatus('loading', 'Sauvegarde…');
-    fetch(API_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Access-Key': API_KEY
-      },
-      body: JSON.stringify({ data: data })
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(){
-      setSyncStatus('ok', 'Synchronisé');
-      try { localStorage.setItem('monCarnetRegles', JSON.stringify(data)); } catch(e){}
-    })
-    .catch(function(){
-      setSyncStatus('err', 'Erreur de sauvegarde');
-    });
-  }
-
-  function changeMonth(delta){
-    view.setMonth(view.getMonth()+delta);
-    render();
-  }
-
-  function openSheet(key){
-    selectedKey = key;
-    var p = key.split('-');
-    var dt = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
-    document.getElementById('sheetDate').textContent =
-      dt.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-    document.getElementById('removeBtn').style.display = data[key] ? 'block' : 'none';
-    document.getElementById('overlay').classList.add('show');
-  }
-  function closeSheet(){ document.getElementById('overlay').classList.remove('show'); selectedKey=null; }
-  function setFlow(f){ if(selectedKey){ data[selectedKey]=f; saveToCloud(); render(); } closeSheet(); }
-  function removeDay(){ if(selectedKey){ delete data[selectedKey]; saveToCloud(); render(); } closeSheet(); }
-
-  document.getElementById('overlay').addEventListener('click', function(e){
-    if(e.target === this) closeSheet();
-  });
-
-  function render(){
-    var y = view.getFullYear(), m = view.getMonth();
-    document.getElementById('monthLabel').textContent = months[m] + ' ' + y;
-      document.getElementById('recapTitle').textContent = 'Récap de ' + months[m] + ' ' + y + ' :';    var cal = document.getElementById('calendar');
-    cal.innerHTML = '';
-    var first = new Date(y, m, 1);
-    var startDay = (first.getDay()+6)%7;
-    var daysInMonth = new Date(y, m+1, 0).getDate();
-    var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
-    for(var i=0;i<startDay;i++){
-      var e = document.createElement('div'); e.className='day empty'; cal.appendChild(e);
-    }
-    var count = 0;
-    for(var d=1; d<=daysInMonth; d++){
-      var key = keyOf(y,m,d);
-      var btn = document.createElement('button');
-      btn.className = 'day';
-      btn.textContent = d;
-      if(data[key]){ btn.className += ' f'+data[key]; count++; }
-      if(key === todayKey){ btn.className += ' today'; }
-      (function(k){ btn.onclick = function(){ openSheet(k); }; })(key);
-      cal.appendChild(btn);
-    }
-    var r = document.getElementById('recapText');
-    if(count===0){ r.textContent = "Aucun jour noté pour l'instant."; }
-    else { r.textContent = '🌸 ' + count + (count>1?' jours':' jour') + ' de règles'; }
-  }
-
-  function exportData(){
-    var now = new Date();
-    var stamp = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-    var payload = JSON.stringify({ app: 'monCarnetRegles', exportedAt: now.toISOString(), data: data }, null, 2);
-    var blob = new Blob([payload], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'mon-carnet-' + stamp + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-  }
-
-  loadFromCloud();
-</script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
