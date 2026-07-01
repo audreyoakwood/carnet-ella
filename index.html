@@ -39,6 +39,10 @@
     <button onclick="changeMonth(1)" aria-label="Mois suivant">›</button>
   </div>
 
+  <div class="today-row">
+    <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
+  </div>
+
   <div class="weekdays">
     <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
   </div>
@@ -66,14 +70,16 @@
       <h3>Mes règles</h3>
       <p class="date-label" id="sheetDate"></p>
       <div class="flow-options">
-        <button class="flow-opt o1" onclick="setFlow(1)"><span class="dot" style="background:var(--rose-fonce)"></span>Léger</button>
-        <button class="flow-opt o2" onclick="setFlow(2)"><span class="dot" style="background:var(--texte-fonce)"></span>Moyen</button>
-        <button class="flow-opt o3" onclick="setFlow(3)"><span class="dot" style="background:#fff"></span>Abondant</button>
+        <button class="flow-opt o1" onclick="setFlow(1)"><span class="drops"><span class="drop"></span></span>Léger</button>
+        <button class="flow-opt o2" onclick="setFlow(2)"><span class="drops"><span class="drop"></span><span class="drop"></span></span>Moyen</button>
+        <button class="flow-opt o3" onclick="setFlow(3)"><span class="drops"><span class="drop"></span><span class="drop"></span><span class="drop"></span></span>Abondant</button>
       </div>
       <button class="remove-btn" id="removeBtn" onclick="removeDay()">Retirer ce jour</button>
       <button class="cancel-btn" onclick="closeSheet()">Annuler</button>
     </div>
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script src="config.js"></script>
   <script src="app.js"></script>

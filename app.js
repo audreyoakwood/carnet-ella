@@ -56,6 +56,21 @@ function changeMonth(delta){
   render();
 }
 
+function goToday(){
+  view = new Date(today.getFullYear(), today.getMonth(), 1);
+  render();
+}
+
+var toastTimer = null;
+function showToast(msg){
+  var el = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1400);
+}
+
 function openSheet(key){
   selectedKey = key;
   var p = key.split('-');
@@ -66,8 +81,8 @@ function openSheet(key){
   document.getElementById('overlay').classList.add('show');
 }
 function closeSheet(){ document.getElementById('overlay').classList.remove('show'); selectedKey=null; }
-function setFlow(f){ if(selectedKey){ data[selectedKey]=f; saveToCloud(); render(); } closeSheet(); }
-function removeDay(){ if(selectedKey){ delete data[selectedKey]; saveToCloud(); render(); } closeSheet(); }
+function setFlow(f){ if(selectedKey){ data[selectedKey]=f; saveToCloud(); render(); showToast('✓ Enregistré'); } closeSheet(); }
+function removeDay(){ if(selectedKey){ delete data[selectedKey]; saveToCloud(); render(); showToast('Jour retiré'); } closeSheet(); }
 
 document.getElementById('overlay').addEventListener('click', function(e){
   if(e.target === this) closeSheet();
