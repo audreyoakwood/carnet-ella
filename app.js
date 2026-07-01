@@ -7,32 +7,41 @@ var months = ['janvier','février','mars','avril','mai','juin','juillet','août'
 function setSyncStatus(state, text){
   var el = document.getElementById('syncStatus');
   if(!el) return;
-  el.className = 'sync-status' + (state ? ' ' + state : '');
+  el.className = 'sync-pill' + (state ? ' ' + state : '');
   el.textContent = text || '';
+}
+
+function openInfo(){
+  document.getElementById('infoCard').classList.add('open');
+  document.getElementById('infoBtn').classList.add('open');
+}
+function closeInfo(){
+  document.getElementById('infoCard').classList.remove('open');
+  document.getElementById('infoBtn').classList.remove('open');
 }
 
 function keyOf(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
 
 function loadFromCloud(){
-  setSyncStatus('loading', 'Chargement…');
+  setSyncStatus('loading', 'Synchro…');
   fetch(API_URL + '/latest', {
     headers: { 'X-Access-Key': API_KEY }
   })
   .then(function(r){ return r.json(); })
   .then(function(json){
     data = (json.record && json.record.data) ? json.record.data : {};
-    setSyncStatus('ok', 'Synchronisé');
+    setSyncStatus('ok', 'Synchro');
     render();
   })
   .catch(function(){
-    setSyncStatus('err', "Hors ligne — enregistré sur l'appareil");
+    setSyncStatus('err', 'Hors ligne');
     try { data = JSON.parse(localStorage.getItem('monCarnetRegles')) || {}; } catch(e){ data = {}; }
     render();
   });
 }
 
 function saveToCloud(){
-  setSyncStatus('loading', 'Sauvegarde…');
+  setSyncStatus('loading', 'Synchro…');
   fetch(API_URL, {
     method: 'PUT',
     headers: {
@@ -47,7 +56,7 @@ function saveToCloud(){
     try { localStorage.setItem('monCarnetRegles', JSON.stringify(data)); } catch(e){}
   })
   .catch(function(){
-    setSyncStatus('err', 'Erreur de sauvegarde');
+    setSyncStatus('err', 'Hors ligne');
   });
 }
 

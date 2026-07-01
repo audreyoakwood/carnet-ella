@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FBEAF0">
+<meta name="theme-color" content="#FCEAF2">
 <meta name="application-name" content="Mon carnet">
 <meta name="apple-mobile-web-app-title" content="Mon carnet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
@@ -14,59 +14,66 @@
 <title>Mon carnet</title>
 </head>
 <body>
-  <header>
-    <div class="logo">🌸</div>
-    <div>
-      <h1>Mon carnet</h1>
-      <p class="sub">Mon petit suivi perso</p>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+
+  <div class="app">
+    <header>
+      <div class="logo">🌸</div>
+      <div>
+        <h1>Mon carnet</h1>
+        <p class="sub">Mon petit suivi perso</p>
+      </div>
+      <span class="sync-pill" id="syncStatus"></span>
+      <button class="info-btn open" id="infoBtn" onclick="openInfo()" aria-label="Infos">i</button>
+    </header>
+
+    <div class="card hint-card">
+      <strong>Salut Ella 🧚 !</strong> Ton corps fait des trucs de ouf en ce moment — autant garder une trace :) !
     </div>
-  </header>
 
-  <div class="hint">
-    <strong style="font-size:15px; color:#222;">Salut Ella 🧚 !</strong><br>
-    Ton corps fait des trucs de ouf en ce moment — autant garder une trace :) !
+    <div class="card info-card open" id="infoCard">
+      <button class="info-close" onclick="closeInfo()" aria-label="Fermer">✕</button>
+      ℹ️ En général les règles arrivent une <strong>fois par mois</strong> et durent <strong>entre 5 et 7 jours</strong>. Pas de panique si c'est un peu chaotique au début.<br>Et si quelque chose te semble bizarre, tu nous préviens ok ? 😉
+      <br><br><span class="consigne-txt">👉 Touche un jour où tu as tes règles puis renseigne ton flux. Pas besoin de noter quand il n'y a rien.</span>
+    </div>
+
+    <div class="nav">
+      <button class="arrow" onclick="changeMonth(-1)" aria-label="Mois précédent">‹</button>
+      <span class="month-label" id="monthLabel"></span>
+      <button class="arrow" onclick="changeMonth(1)" aria-label="Mois suivant">›</button>
+    </div>
+
+    <div class="today-row">
+      <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
+    </div>
+
+    <div class="weekdays">
+      <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+    </div>
+    <div class="calendar" id="calendar"></div>
+
+    <div class="legend">
+      <span><span class="ldot" style="background:linear-gradient(135deg,#FBD3E2,#F7B6D0)"></span>Léger</span>
+      <span><span class="ldot" style="background:linear-gradient(135deg,#F49BBE,#EC6F9C)"></span>Moyen</span>
+      <span><span class="ldot" style="background:linear-gradient(135deg,#C24A76,#8E2249)"></span>Abondant</span>
+    </div>
+
+    <div class="recap-card">
+      <h2 id="recapTitle">Récap de ce mois</h2>
+      <p class="big" id="recapText"></p>
+    </div>
+
+    <div class="export-row">
+      <button class="export-link" onclick="exportData()">exporter mes données</button>
+    </div>
   </div>
 
-  <div style="background:#F4C0D1; border-radius:14px; padding:14px 16px; font-size:13px; color:#4B1528; line-height:1.6; margin-bottom:16px;">
-    ℹ️ En général les règles arrivent une <strong>fois par mois</strong> et durent <strong>entre 5 et 7 jours</strong>. Pas de panique si c'est un peu chaotique au début. <br>Et si quelque chose te semble bizarre, tu nous préviens ok ? 😉
-  </div>
-
-  <p style="font-size:13px; color:#888; margin: 0 0 12px;">Touche un jour où tu as tes règles puis renseigne ton flux. C'est tout. Pas besoin de noter quand il n'y a rien.</p>
-
-  <div class="nav">
-    <button onclick="changeMonth(-1)" aria-label="Mois précédent">‹</button>
-    <span class="month-label" id="monthLabel"></span>
-    <button onclick="changeMonth(1)" aria-label="Mois suivant">›</button>
-  </div>
-
-  <div class="today-row">
-    <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
-  </div>
-
-  <div class="weekdays">
-    <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
-  </div>
-  <div class="calendar" id="calendar"></div>
-
-  <div class="legend">
-    <span><span class="dot" style="background:var(--rose-clair)"></span>Léger</span>
-    <span><span class="dot" style="background:var(--rose-moyen)"></span>Moyen</span>
-    <span><span class="dot" style="background:var(--rose-fonce)"></span>Abondant</span>
-  </div>
-
-  <div class="recap">
-    <h2 id="recapTitle">Récap de ce mois</h2>
-    <p class="big" id="recapText"></p>
-  </div>
-
-  <div class="sync-status" id="syncStatus"></div>
-
-  <div class="actions">
-    <button class="action-btn" onclick="exportData()">Export</button>
-  </div>
+  <div class="toast" id="toast"></div>
 
   <div class="overlay" id="overlay">
     <div class="sheet">
+      <div class="grabber"></div>
       <h3>Mes règles</h3>
       <p class="date-label" id="sheetDate"></p>
       <div class="flow-options">
@@ -78,8 +85,6 @@
       <button class="cancel-btn" onclick="closeSheet()">Annuler</button>
     </div>
   </div>
-
-  <div class="toast" id="toast"></div>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
